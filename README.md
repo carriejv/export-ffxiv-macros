@@ -1,3 +1,7 @@
+[![Crates.io](https://img.shields.io/crates/v/export-ffxiv-macros.svg)](https://crates.io/crates/export-ffxiv-macros/)
+[![Apache-2.0](https://img.shields.io/github/license/carriejv/export-ffxiv-macros)](https://github.com/carriejv/export-ffxiv-macros/blob/master/LICENSE/)
+[![Build Status](https://github.com/carriejv/export-ffxiv-macros/workflows/CIBuild/badge.svg?branch=master)](https://github.com/carriejv/export-ffxiv-macros/actions?query=workflow%3ACIBuild)
+
 # Export FFXIV Macros
 
 A simple tool that leverages [libxivdat](https://github.com/carriejv/libxivdat) to dump Final Fantasy XIV macros to [TOML](https://toml.io/en/).
