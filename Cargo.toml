@@ -1,0 +1,22 @@
+[package]
+name = "export-ffxiv-macros"
+version = "0.1.0"
+edition = "2018"
+license = "Apache-2.0"
+description = "A CLI utility for exporting Final Fantasy XIV macros to TOML."
+keywords = ["xiv", "final fantasy", "macro", "export", "read"]
+categories = ["command-line-utilities", "encoding", "filesystem"]
+authors = ["Carrie J V <carrie@carriejv.com"]
+homepage = "https://github.com/carriejv/export-ffxiv-macros"
+repository = "https://github.com/carriejv/export-ffxiv-macros"
+readme = "README.md"
+
+[[bin]]
+name = "export-ffxiv-macros"
+
+[dependencies]
+directories = "3.0.2"
+libxivdat = { version = "0.2.0", features = ["macro"] }
+serde = { version = "1.0.126", features = ["derive"] }
+toml = "0.5.8"
+
