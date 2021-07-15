@@ -1,17 +1,17 @@
 use directories::UserDirs;
 use libxivdat::xiv_macro::{read_macro_content, Macro};
-use serde::{Deserialize,Serialize};
+use serde::{Deserialize, Serialize};
 use toml::to_string_pretty;
 
-use std::fs;
 use std::env;
+use std::fs;
 use std::path::PathBuf;
 use std::process;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Output {
     #[serde(rename = "macro")]
-    macro_vec: Vec<MacroOutput>
+    macro_vec: Vec<MacroOutput>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -19,17 +19,22 @@ struct MacroOutput {
     title: String,
     icon: String,
     lines: Vec<String>,
-    text: String
+    text: String,
 }
 
 impl From<&Macro> for MacroOutput {
     fn from(x: &Macro) -> MacroOutput {
-        let filtered_lines = x.lines.iter().cloned().filter(|line| line != "").collect::<Vec<String>>();
+        let filtered_lines = x
+            .lines
+            .iter()
+            .cloned()
+            .filter(|line| !line.is_empty())
+            .collect::<Vec<String>>();
         MacroOutput {
             title: String::from(&x.title),
             icon: format!("{:?}", x.get_icon().unwrap()),
             lines: filtered_lines.clone(),
-            text: filtered_lines.join(" ")
+            text: filtered_lines.join(" "),
         }
     }
 }
@@ -39,12 +44,8 @@ fn main() {
     let args = env::args().collect::<Vec<String>>();
     // Input and output provided.
     let targets = if args.len() == 3 {
-        vec![(
-            PathBuf::from(&args[1]),
-            PathBuf::from(&args[2])
-        )]
-    }
-    else if args.len() == 2 {
+        vec![(PathBuf::from(&args[1]), PathBuf::from(&args[2]))]
+    } else if args.len() == 2 {
         let path = PathBuf::from(&args[1]);
         let mut out_path = PathBuf::from(match path.file_name() {
             Some(out_path) => out_path,
@@ -54,12 +55,8 @@ fn main() {
             }
         });
         out_path.set_extension(".toml");
-        vec![(
-            path,
-            out_path
-        )]
-    }
-    else {
+        vec![(path, out_path)]
+    } else {
         // Get user dir
         let usr_dir = match UserDirs::new() {
             Some(usr_dir) => usr_dir,
@@ -82,7 +79,13 @@ fn main() {
                 process::exit(1);
             }
         };
-        let game_cfg_dir = [usr_doc_dir_str, "My Games", "FINAL FANTASY XIV - A Realm Reborn"].iter().collect::<PathBuf>();
+        let game_cfg_dir = [
+            usr_doc_dir_str,
+            "My Games",
+            "FINAL FANTASY XIV - A Realm Reborn",
+        ]
+        .iter()
+        .collect::<PathBuf>();
         let mut targets = match fs::read_dir(&game_cfg_dir) {
             Ok(dir_items) => {
                 let mut char_targets = Vec::<(PathBuf, PathBuf)>::new();
@@ -103,10 +106,13 @@ fn main() {
                                         process::exit(1);
                                     }
                                 };
-                                let out_path = PathBuf::from(format!("{}_MACRO.toml", parent_name.to_string_lossy()));
+                                let out_path = PathBuf::from(format!(
+                                    "{}_MACRO.toml",
+                                    parent_name.to_string_lossy()
+                                ));
                                 char_targets.push((path_buf, out_path));
                             }
-                        },
+                        }
                         Err(err) => {
                             println!("Filesystem error: {}.", err);
                             process::exit(1);
@@ -114,13 +120,13 @@ fn main() {
                     }
                 }
                 char_targets
-            },
+            }
             Err(err) => {
                 println!("Filesystem error: {}.", err);
                 process::exit(1);
             }
         };
-        let mut macrosys_path = game_cfg_dir.clone();
+        let mut macrosys_path = game_cfg_dir;
         macrosys_path.push("MACROSYS.dat");
         targets.push((macrosys_path, PathBuf::from("MACROSYS.toml")));
         targets
@@ -135,14 +141,16 @@ fn main() {
             Ok(macro_vec) => macro_vec,
             Err(err) => {
                 println!("Error extracting macros: {}.", err);
-                process::exit(1);  
+                process::exit(1);
             }
         };
         // Convert to output struct
-        let mut output = Output{ macro_vec: Vec::<MacroOutput>::new() };
+        let mut output = Output {
+            macro_vec: Vec::<MacroOutput>::new(),
+        };
         for macro_item in macro_vec.iter() {
             let output_fmt_macro = MacroOutput::from(macro_item);
-            if output_fmt_macro.title != "" && output_fmt_macro.lines.len() > 0 {
+            if !output_fmt_macro.title.is_empty() && !output_fmt_macro.lines.is_empty() {
                 output.macro_vec.push(output_fmt_macro);
             }
         }
@@ -152,7 +160,7 @@ fn main() {
             Ok(_) => (),
             Err(err) => {
                 println!("Error writing output: {}.", err);
-                process::exit(1);  
+                process::exit(1);
             }
         };
     }
